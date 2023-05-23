@@ -62,8 +62,7 @@ int main(int argc, char const *argv[])
     CHECK(fd,"shm_open failed");
     int r = ftruncate(fd, sizeof(Data));
     CHECK(r, "ftruncate failed");
-    Data *data = mmap(NULL, sizeof(Data),
-                             PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    Data *data = mmap(NULL, sizeof(Data),PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     close(fd);
     sem_init(&data->sem,1,1);
 
