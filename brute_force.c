@@ -2,10 +2,12 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<time.h>
+#include<string.h>
 typedef uint64_t natural_number;
-natural_number collatz(natural_number x) {
+natural_number collatz(natural_number x, size_t lim) {
     natural_number steps = 0;
-    while (x != 1) {   
+    while (x != 1) {
+        if(steps >lim) break;   
         steps++;              // until you reach 1,
         if (x % 2)                     // if the number is odd,
             x = 3 * x + 1;               // multiply it by three and add one,
@@ -26,30 +28,43 @@ void print_array(unsigned long * array, size_t size)
 
 int main(int argc, char const *argv[])
 {
-    
-    natural_number max_steps = 250;
-    natural_number results[5];
-    time_t start = clock();
-    for (natural_number i =11; i < max_steps; i++)
+    if(argc <2)
     {
-
-        size_t n_results = 0;
-        natural_number x = 1;
-        while (n_results <5)
-        {
-            natural_number steps = collatz(x);
-            if(steps == i)
-            {
-                results[n_results++] = x;  
-            }
-            x++;
-        }
-        print_array(results,5);
-        
+        exit(0);
     }
-    time_t end = clock();
-    time_t final =  end- start;
-    printf("%ld \n", final);
+    natural_number max_steps = atoi(argv[1]);
+    natural_number **results = malloc(sizeof(natural_number*)*(max_steps-11));
+    natural_number *ns = malloc(sizeof(size_t)*(max_steps-11));
+    for (size_t i = 0; i < max_steps-11; i++)
+    {
+        ns[i]=0;
+        results[i] = malloc(sizeof(natural_number)*5);
+    }
     
+    natural_number n_results = 0;
+    natural_number x=0;
+    while (n_results <  (max_steps-11)*5)
+    {
+        x++;
+        printf("Processing %ld\n",x);
+        natural_number s = collatz(x,max_steps);
+        if(max_steps>s && s>10)
+        {
+            s-=11;
+            if(ns[s]<5)
+            {
+                results[s][ns[s]++] = x;
+                n_results++;
+            }
+        }
+    }
+    
+
+    for (natural_number i =0; i < max_steps-11; i++)
+    {
+        printf("s = %ld\t",i+11);
+        print_array(results[i],5);
+
+    }
     return 0;
 }

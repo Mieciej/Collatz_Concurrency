@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include<time.h>
-#define N_THREADS 8
+#define N_THREADS 2
 
 #define CHECK(result, textOnFail)                                              \
   if (((long int)result) == -1) {                                              \
@@ -38,10 +38,11 @@ typedef struct
     unsigned long max_steps;
     unsigned long n_results;
     unsigned long results[5];
-    sem_t x_sem_r; 
-    sem_t x_sem_w;
+    // sem_t x_sem_r; 
+    // sem_t x_sem_w;
+    sem_t x_sem;
     sem_t result_sem;
-    size_t readers;
+    //size_t n_readers;
     
 } Data;
 
@@ -60,7 +61,11 @@ void *thread(void *n_thrd)
             unsigned long min =0;
             while (data->x[n] > min && data->n_results < 5)
             {
-                sem_wait(&data->x_sem_r);
+                sem_wait(&data->x_sem);
+                // sem_wait(&data->x_sem_r);
+                // data->n_readers +=1;
+                // if (data->n_readers == 1) sem_wait(&data->x_sem_w);
+                // sem_post(&data->x_sem_r);
                 min = data->x[0];
                 for (size_t i = 1; i < N_THREADS; i++)
                 {
@@ -70,6 +75,11 @@ void *thread(void *n_thrd)
                     }
                 }
                 sem_post(&data->x_sem);
+
+                // sem_wait(&data->x_sem_r);
+                // data->n_readers -=1;
+                // if (data->n_readers == 0) sem_post(&data->x_sem_w);
+                // sem_post(&data->x_sem_r);
             }
             sem_wait(&data->result_sem);
             if(data->n_results>=5)
@@ -83,9 +93,12 @@ void *thread(void *n_thrd)
 
             
         }
+        // sem_wait(&data->x_sem_w);
         sem_wait(&data->x_sem);
         data->x[n]+=N_THREADS;
         sem_post(&data->x_sem);
+
+        // sem_post(&data->x_sem_w);
     }
     
     return NULL;
@@ -109,13 +122,14 @@ int main(int argc, char const *argv[])
     }
     
     data->curr_steps=11;
-    data->max_steps = 250;
-
+    data->max_steps = 12;
+    //data->n_readers = 0;
     time_t start = clock();
     while (data->curr_steps < data->max_steps)
     {
-        sem_init(&data->x_sem_r,1,1);
-        sem_init(&data->x_sem_w,1,1);
+        // sem_init(&data->x_sem_r,1,1);
+        // sem_init(&data->x_sem_w,1,1);
+        sem_init(&data->x_sem,1,1);
         sem_init(&data->result_sem,1,1);
         data->n_results = 0;
         for (size_t i = 0; i < N_THREADS; i++)
