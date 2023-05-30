@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
     }
     unsigned long max_steps;
     max_steps = atoi(argv[1]);
-    // max_steps = 12;
+
     if(max_steps <= 10)
     {
         fprintf(stderr,"MAX SIZE too small! \n");
@@ -159,10 +159,16 @@ int main(int argc, char const *argv[])
         
     
     }
+    if(stopFlag)
+    {
+        exit(0);
+    }
     for (size_t i = 0; i < max_steps-11; i++)
     {
         printf("s = %ld\t",i+11);
+        sem_wait(&data->entries[i].sem);
         print_array(data->entries[i].result,5);
+        sem_post(&data->entries[i].sem);
     }
 
     munmap(data,data_size);
