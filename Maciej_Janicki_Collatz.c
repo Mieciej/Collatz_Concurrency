@@ -161,6 +161,7 @@ int main(int argc, char const *argv[])
     }
     if(stopFlag)
     {
+        munmap(data,data_size);
         exit(0);
     }
     for (size_t i = 0; i < max_steps-11; i++)
