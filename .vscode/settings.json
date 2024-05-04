@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "pthread.h": "c",
-        "stdlib.h": "c",
-        "stdatomic.h": "c",
-        "mman.h": "c",
-        "semaphore.h": "c"
-    }
-}
